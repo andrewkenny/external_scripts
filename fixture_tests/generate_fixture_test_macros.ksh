@@ -4,12 +4,6 @@ External_Path=$1
 #remove the tempfiles (if they exist)
 #that this script uses to prevent problems
 #if they do.
-SUB_SHORTS_PLATE='debug/custom/temp/shorts_plate'
-rm -f $SUB_SHORTS_PLATE
-
-SUB_PINS_PLATE='debug/custom/temp/pins_plate'
-rm -f $SUB_PINS_PLATE
-
 POST_SHORTS_PROCESS='debug/custom/temp/testplan~1'
 rm -f $POST_SHORTS_PROCESS
 
@@ -109,11 +103,10 @@ fi
 cat testplan > testplan.bak
 
 #copy new testplan over current testplan.
-cp $POST_PINS_PROCESS testplan
+cp $POST_GP_PROCESS testplan
 
 #remove temp files (if not removed already)
 
-rm -f $SUB_SHORTS_PLATE
-rm -f $SUB_PINS_PLATE
 rm -f $POST_SHORTS_PROCESS
 rm -f $POST_PINS_PROCESS
+rm -f $POST_GP_PROCESS

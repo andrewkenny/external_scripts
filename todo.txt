@@ -1,0 +1,3 @@
+1 - ensure that after test generation
+    the pins routine contains only test "pins" stuff (no pins_plate)
+    and that the pins plate routine only contains pins_plate tests.

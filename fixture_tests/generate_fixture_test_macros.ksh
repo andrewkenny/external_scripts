@@ -44,31 +44,34 @@ grep -qE '^ *sub *Shorts_plate' 'testplan'
 #if the Shorts plate sub already exists,
 #there is no need to create it.
 if [[ $? -ne 0 ]] ; then
+
+   echo 'cat $1' > debug/custom/temp/modifier.ksh
+   ksh $External_Path/fixture_tests/add_modified_subroutine.ksh 'testplan' '^ *sub *Shorts *'  '^ *subend'  > $POST_SHORTS_PROCESS
    
-   #find the line number where sub shorts starts.
-   SUB_SHORTS_START=$(grep -En '^ *sub *Shorts *' 'testplan' | cut -f1 '-d:')
-
-   #add all of the testplan up to the start of sub shorts to 
-   head -n $(expr $SUB_SHORTS_START - 1) 'testplan' > $POST_SHORTS_PROCESS
-
-   #find out how long the shorts subroutine is
-   SUB_SHORTS_LEN=$(sed 1,$(expr $SUB_SHORTS_START - 1)d 'testplan' | grep -En '^ *subend' | cut -f1 '-d:' | head -n 1)
-
-   #calculate the line number of the end of the shorts subroutine.
-   SUB_SHORTS_END=$((SUB_SHORTS_START+SUB_SHORTS_LEN))
-   
-   #add the sub shorts to the testplan while storing the text to 
-   #the file $SUB_SHORTS_PLATE
-   sed 1,$(expr $SUB_SHORTS_START - 1)d 'testplan' 2> /dev/null | head -n $SUB_SHORTS_LEN | tee $SUB_SHORTS_PLATE >> $POST_SHORTS_PROCESS
-
-   
-   #re-insert the shorts subroutine, modified to test the fixture shorts.
-   echo "" >> $POST_SHORTS_PROCESS
-   sed -e 's/^ *sub *Shorts/sub Shorts_plate/' -e '/^ *test /s/shorts"/shorts_plate"/' $SUB_SHORTS_PLATE >> $POST_SHORTS_PROCESS
+   ##find the line number where sub shorts starts.
+   #SUB_SHORTS_START=$(grep -En '^ *sub *Shorts *' 'testplan' | cut -f1 '-d:')
+   #
+   ##add all of the testplan up to the start of sub shorts to 
+   #head -n $(expr $SUB_SHORTS_START - 1) 'testplan' > $POST_SHORTS_PROCESS
+   #
+   ##find out how long the shorts subroutine is
+   #SUB_SHORTS_LEN=$(sed 1,$(expr $SUB_SHORTS_START - 1)d 'testplan' | grep -En '^ *subend' | cut -f1 '-d:' | head -n 1)
+   #
+   ##calculate the line number of the end of the shorts subroutine.
+   #SUB_SHORTS_END=$((SUB_SHORTS_START+SUB_SHORTS_LEN))
+   #
+   ##add the sub shorts to the testplan while storing the text to 
+   ##the file $SUB_SHORTS_PLATE
+   #sed 1,$(expr $SUB_SHORTS_START - 1)d 'testplan' 2> /dev/null | head -n $SUB_SHORTS_LEN | tee $SUB_SHORTS_PLATE >> $POST_SHORTS_PROCESS
+   #
+   #
+   ##re-insert the shorts subroutine, modified to test the fixture shorts.
    #echo "" >> $POST_SHORTS_PROCESS
-   
-   #add the testplan text which comes after the sub shorts.
-   sed 1,$(expr $SUB_SHORTS_END - 1)d 'testplan' >> $POST_SHORTS_PROCESS
+   #sed -e 's/^ *sub *Shorts/sub Shorts_plate/' -e '/^ *test /s/shorts"/shorts_plate"/' $SUB_SHORTS_PLATE >> $POST_SHORTS_PROCESS
+   ##echo "" >> $POST_SHORTS_PROCESS
+   #
+   ##add the testplan text which comes after the sub shorts.
+   #sed 1,$(expr $SUB_SHORTS_END - 1)d 'testplan' >> $POST_SHORTS_PROCESS
    
    
 else
@@ -88,6 +91,7 @@ grep -qE '^ *def *fn *Pins_platefailed' $POST_SHORTS_PROCESS
 #if the Shorts plate sub already exists,
 #there is no need to create it.
 if [[ $? -ne 0 ]] ; then
+
    
    #find the line number where sub shorts starts.
    SUB_PINS_START=$(grep -En '^ *def *fn *Pinsfailed' $POST_SHORTS_PROCESS | cut -f1 '-d:')

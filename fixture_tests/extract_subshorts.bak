@@ -1,0 +1,51 @@
+grep -qE '^ *sub *Shorts_plate' 'testplan'
+
+#if the Shorts plate sub already exists,
+#there is no need to create it.
+if [[ $? -ne 0 ]] ; then
+    
+    cat 'testplan' | \
+    while read LINE ; do
+    
+        #check for start of sub Shorts
+        
+        if [[ $SHORTS_FLAG -eq 0 && $END_SHORTS -eq 0 ]] ; then
+            #echo $LINE | grep -qE '^ *sub *Shorts'
+            echo $LINE | grep -qF 'sub Shorts'
+            if [[ $? -eq 0 ]] ; then
+                SHORTS_FLAG=1
+            
+            fi
+        fi
+        
+        #check for end of sub Shorts
+        #which can only occur after
+        #the start of sub shorts has been found
+        if [[ $SHORTS_FLAG -eq 1 ]] ; then
+            #coming to the end of the shorts
+            #subroutine means setting the END_SHORTS flag.
+            echo $LINE | tee -a $SUB_SHORTS_PLATE  >&2
+            echo $LINE | grep -qE '^ *subend *$'
+            if [[ $? -eq 0 ]] ; then ; END_SHORTS='1' ; fi
+        fi
+        
+        #if the SHORTS_FLAG is 1, then all lines from the testplan are to be
+        #redirected to the debug/custom/temp/shorts_plate tempfile location.
+        if [[ $SHORTS_FLAG -eq 1 ]] ; then
+            echo $line >> SUB_SHORTS_PLATE
+        fi
+        
+        #echo the normal line from the testplan.
+        echo $LINE
+        
+        #at the end of the shorts routine, reset the SHORTS_FLAG,
+        #and copy in the (hopefully) processed shorts_plate
+        #subroutine, with a pre and for empty echo for spacing.
+        if [[ $END_SHORTS -eq 1 ]] ; then
+            SHORTS_FLAG='0'
+            #echo ""
+            #cat $SUB_SHORTS_PLATE 
+            #echo ""
+        fi
+        
+    done > $POST_SHORTS_PROCESS

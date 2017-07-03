@@ -16,6 +16,10 @@ rm -f $POST_SHORTS_PROCESS
 POST_PINS_PROCESS='debug/custom/temp/testplan~2'
 rm -f $POST_PINS_PROCESS
 
+POST_GP_PROCESS='debug/custom/temp/testplan~3'
+rm -f $POST_GP_PROCESS
+
+
 #first create the fixture pins and fixture shorts macro.
 
 sed 's/^if fnPinsfailed/if fnPins_platefailed/' 'debug/board/Testplan_Macros/Pins' > 'debug/board/Fixture_Check_Macros/Pins'
@@ -39,10 +43,9 @@ echo 'Fixture Relays' >> 'debug/board/Fixture_Check_Macros/menu'
 
 
 #check the testplan for the shorts_plate subroutine.
-grep -qE '^ *sub *Shorts_plate' 'testplan'
-
 #if the Shorts plate sub already exists,
 #there is no need to create it.
+grep -qE '^ *sub *Shorts_plate' 'testplan'
 if [[ $? -ne 0 ]] ; then
 
    #modify the subroutine (1) with arguments (2) direct output to (3)
@@ -59,13 +62,10 @@ else
 fi
 
 
-
-
 #check the testplan for the pins_plate.
-grep -qE '^ *def *fn *Pins_platefailed' $POST_SHORTS_PROCESS
-
 #if the Shorts plate sub already exists,
 #there is no need to create it.
+grep -qE '^ *def *fn *Pins_platefailed' $POST_SHORTS_PROCESS
 if [[ $? -ne 0 ]] ; then
    
    #modify the subroutine (1) with arguments (2) direct output to (3)
@@ -81,6 +81,27 @@ else
     cp $POST_SHORTS_PROCESS $POST_PINS_PROCESS   
 
 fi
+
+#check the testplan for the pins_plate.
+#if the Shorts plate sub already exists,
+#there is no need to create it.
+grep -qE '^ *sub *GP_Relay_Check' $POST_SHORTS_PROCESS
+if [[ $? -ne 0 ]] ; then
+   
+   #modify the subroutine (1) with arguments (2) direct output to (3)
+   ksh $External_Path/fixture_tests/add_modified_subroutine.ksh \
+   "$POST_PINS_PROCESS" '^ *sub *Characterize'  '^ *subend' "$External_Path/fixture_tests/sub_gp_relay_modifier.ksh" 'execute'\
+   > $POST_GP_PROCESS
+   
+   
+else
+    #even if the shorts_plate isnt being added,
+    #the testplan must be moved to $POST_SHORTS_PROCESS 
+    #so that other operations can be applied to it.
+    cp $POST_PINS_PROCESS $POST_GP_PROCESS   
+
+fi
+
 
 #create backup of testplan.
 cat testplan > testplan.bak

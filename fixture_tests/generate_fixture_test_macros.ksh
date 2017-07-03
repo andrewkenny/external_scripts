@@ -28,7 +28,7 @@ sed 's/^call Shorts/call Shorts_plate/' 'debug/board/Testplan_Macros/Shorts' > '
 
 
 #add the gp relay setup.
-echo print \"not implemented yet\" >  'debug/board/Fixture_Check_Macros/Fixture_Relays'
+sed 's/^call Pre_Shorts/call GP_Relay_Check/' 'debug/board/Testplan_Macros/Preshorts' >  'debug/board/Fixture_Check_Macros/Fixture_Relays'
 
 
 #second create a new menu.
@@ -38,6 +38,8 @@ echo 'P'              >> 'debug/board/Fixture_Check_Macros/menu'
 echo 'Shorts'         >> 'debug/board/Fixture_Check_Macros/menu'
 echo 'S'              >> 'debug/board/Fixture_Check_Macros/menu'
 echo 'Fixture Relays' >> 'debug/board/Fixture_Check_Macros/menu'
+echo 'F'              >> 'debug/board/Fixture_Check_Macros/menu'
+echo ''               >> 'debug/board/Fixture_Check_Macros/menu'
 
 #init flags
 

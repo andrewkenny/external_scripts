@@ -4,18 +4,11 @@ External_Path=$1
 #remove the tempfiles (if they exist)
 #that this script uses to prevent problems
 #if they do.
-POST_SHORTS_PROCESS='debug/custom/temp/testplan~1'
-rm -f $POST_SHORTS_PROCESS
+TEMP_TESTPLAN='debug/custom/temp/testplan'
 
-POST_PINS_PROCESS='debug/custom/temp/testplan~2'
-rm -f $POST_PINS_PROCESS
 
-POST_GP_PROCESS='debug/custom/temp/testplan~3'
-rm -f $POST_GP_PROCESS
 
-POST_FIX_ELECTRONICS_PROCESS='debug/custom/temp/testplan~4'
-rm -f $POST_FIX_ELECTRONICS_PROCESS
-
+TESTPLAN_MOD_COUNT=0
 
 
 #first create the fixture pins and fixture shorts macro.
@@ -52,17 +45,14 @@ echo ''               >> 'debug/board/Fixture_Check_Macros/menu'
 grep -qE '^ *sub *Shorts_plate' 'testplan'
 if [[ $? -ne 0 ]] ; then
 
-   #modify the subroutine (1) with arguments (2) direct output to (3)
-   ksh $External_Path/fixture_tests/add_modified_subroutine.ksh \
-   'testplan' '^ *sub *Shorts *'  '^ *subend' "$External_Path/fixture_tests/testplan_modifiers/sub_shorts_plate_modifier.ksh" 'shorts_plate"'\
-   > $POST_SHORTS_PROCESS
-  
-else
-    #even if the shorts_plate isnt being added,
-    #the testplan must be moved to $POST_SHORTS_PROCESS 
-    #so that other operations can be applied to it.
-    cp testplan $POST_SHORTS_PROCESS   
-
+    TESTPLAN_MOD_COUNT=$(expr $TESTPLAN_MOD_COUNT + 1)
+    cp testplan "testplan..${TESTPLAN_MOD_COUNT}~"
+    
+    #modify the subroutine (1) with arguments (2) direct output to (3)
+    ksh $External_Path/fixture_tests/add_modified_subroutine.ksh \
+    'testplan' '^ *sub *Shorts *'  '^ *subend' "$External_Path/fixture_tests/testplan_modifiers/sub_shorts_plate_modifier.ksh" 'shorts_plate"'\
+    > $TEMP_TESTPLAN
+    cp $TEMP_TESTPLAN testplan
 fi
 
 
@@ -71,19 +61,16 @@ fi
 #there is no need to create it.
 grep -qE '^ *def *fn *Pins_platefailed' $POST_SHORTS_PROCESS
 if [[ $? -ne 0 ]] ; then
-   
+
+    TESTPLAN_MOD_COUNT=$(expr $TESTPLAN_MOD_COUNT + 1)
+    cp testplan "testplan..${TESTPLAN_MOD_COUNT}~"
+ 
    #modify the subroutine (1) with arguments (2) direct output to (3)
    ksh $External_Path/fixture_tests/add_modified_subroutine.ksh \
    "$POST_SHORTS_PROCESS" '^ *def *fn *Pinsfailed'  '^ *fnend' "$External_Path/fixture_tests/testplan_modifiers/sub_pins_plate_modifier.ksh" 'pins_plate"'\
-   > $POST_PINS_PROCESS
+    > $TEMP_TESTPLAN
+    cp $TEMP_TESTPLAN testplan
    
-   
-else
-    #even if the shorts_plate isnt being added,
-    #the testplan must be moved to $POST_SHORTS_PROCESS 
-    #so that other operations can be applied to it.
-    cp $POST_SHORTS_PROCESS $POST_PINS_PROCESS   
-
 fi
 
 
@@ -92,51 +79,31 @@ fi
 #there is no need to create it.
 grep -qE '^ *sub *GP_Relay_Check' $POST_SHORTS_PROCESS
 if [[ $? -ne 0 ]] ; then
-   
+
+    TESTPLAN_MOD_COUNT=$(expr $TESTPLAN_MOD_COUNT + 1)
+    cp testplan "testplan..${TESTPLAN_MOD_COUNT}~"
+ 
    #modify the subroutine (1) with arguments (2) direct output to (3)
    ksh $External_Path/fixture_tests/add_modified_subroutine.ksh \
    "$POST_PINS_PROCESS" '^ *sub *Characterize'  '^ *subend' "$External_Path/fixture_tests/testplan_modifiers/sub_gp_relay_modifier.ksh" 'execute'\
-   > $POST_GP_PROCESS
-   
-else
-    #even if the shorts_plate isnt being added,
-    #the testplan must be moved to $POST_SHORTS_PROCESS 
-    #so that other operations can be applied to it.
-    cp $POST_PINS_PROCESS $POST_GP_PROCESS   
-
+    > $TEMP_TESTPLAN
+    cp $TEMP_TESTPLAN testplan
 fi
-
 
 #check the testplan for the FIXTURE_ELECTRONICS.
 #if the FIXTURE_ELECTRONICS sub already exists,
 #there is no need to create it.
 grep -qE '^ *sub *Fixture_Electronics' $POST_GP_PROCESS
 if [[ $? -ne 0 ]] ; then
-   
+
+    TESTPLAN_MOD_COUNT=$(expr $TESTPLAN_MOD_COUNT + 1)
+    cp testplan "testplan..${TESTPLAN_MOD_COUNT}~"
+ 
    #modify the subroutine (1) with arguments (2) direct output to (3)
    ksh $External_Path/fixture_tests/add_modified_subroutine.ksh \
    "$POST_GP_PROCESS" '^ *sub *Characterize'  '^ *subend' "$External_Path/fixture_tests/testplan_modifiers/sub_fix_electronics_modifier.ksh" 'execute'\
-   > $POST_FIX_ELECTRONICS_PROCESS
-   
-else
-    #even if the shorts_plate isnt being added,
-    #the testplan must be moved to $POST_SHORTS_PROCESS 
-    #so that other operations can be applied to it.
-    cp $POST_GP_PROCESS $POST_FIX_ELECTRONICS_PROCESS   
-
+    > $TEMP_TESTPLAN
+    cp $TEMP_TESTPLAN testplan
 fi
 
 
-
-#create backup of testplan.
-cat testplan > testplan.bak
-
-#copy new testplan over current testplan.
-cp $POST_FIX_ELECTRONICS_PROCESS testplan
-
-#remove temp files (if not removed already)
-
-rm -f $POST_SHORTS_PROCESS
-rm -f $POST_PINS_PROCESS
-rm -f $POST_GP_PROCESS
-rm -f $POST_FIX_ELECTRONICS_PROCESS

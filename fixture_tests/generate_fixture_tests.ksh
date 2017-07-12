@@ -10,6 +10,11 @@ DELIMITER=$(ksh debug/custom/programs/guess_delimiter.ksh)
 PINS_NAME='pins'
 SHORTS_NAME='shorts'
 
+TEMP_TESTORDER="debug/custom/temp/testorder"
+
+#count the number of times the testorder is modified.
+TESTORDER_MOD_COUNT=0
+
 #get list of all the files in the tables folder,
 ls $TABLES_FOLDER_PATH | \
 
@@ -25,8 +30,8 @@ do
     
     START=$(cat $TABLE_PATH | sort -n  | head -1)
     STOP=$(cat $TABLE_PATH | sort -n | tail -1)
-    echo $START
-    echo $STOP
+    #echo $START
+    #echo $STOP
 
     if [[ $START -eq 0 ]] ; then
         PINS=$PINS_NAME
@@ -40,10 +45,32 @@ do
     
     if [[ ! -e "$PINS"_plate ]]; then
         ksh $EXTERNAL_PATH/fixture_tests/fixture_test_generators/generate_fixture_pins.ksh $PINS >  "$PINS"_plate
+        
+        #increment backup counter.
+        TESTORDER_MOD_COUNT=$(expr $TESTORDER_MOD_COUNT + 1)
+        
+        cp testorder "testorder..${TESTORDER_MOD_COUNT}~"
+        
+        #create an entry in the testorder for this new test.
+        ksh $EXTERNAL_PATH/fixture_tests/update_testorder.ksh \
+        "$START" "$STOP" 'test pins "pins_plate"' 'test pins "pins"' > \
+        $TEMP_TESTORDER
+        cp $TEMP_TESTORDER "testorder"
     fi
     
     if [[ ! -e "$SHORTS"_plate ]]; then
         ksh $EXTERNAL_PATH/fixture_tests/fixture_test_generators/generate_fixture_shorts.ksh $SHORTS > "$SHORTS"_plate
+    
+        #increment backup counter.
+        TESTORDER_MOD_COUNT=$(expr $TESTORDER_MOD_COUNT + 1)
+        
+        cp testorder "testorder..${TESTORDER_MOD_COUNT}~"
+        
+        #create an entry in the testorder for this new test.
+        ksh $EXTERNAL_PATH/fixture_tests/update_testorder.ksh \
+        "$START" "$STOP" 'test shorts "shorts_plate"' 'test shorts "shorts"' > \
+        $TEMP_TESTORDER
+        cp $TEMP_TESTORDER "testorder"
     fi
     
     if [[ $START -ne $STOP ]] ; then

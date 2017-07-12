@@ -8,15 +8,12 @@ PARSE_TEMP='debug/custom/temp/parse_file'
 NO_COMMENTS=1
 NO_FLAGS=1
 
-#TEST_START=$1
-#TEST_STOP=$2
-#TEST_NAME=$3
-#SENTINAL=$4
+TEST_START=$1
+TEST_STOP=$2
+TEST_NAME=$3
+SENTINAL=$4
 
-TEST_START="1"
-TEST_STOP="10"
-TEST_NAME='test pins "pins_plate"'
-SENTINAL='test pins "pins"'
+
 
 
 #is the test already in the testorder?

@@ -4,7 +4,7 @@ if [[ $# -eq 0 ]];then
    exit
 fi
 
-
+SHORTS_FNAME=$1
 
 
 #this script alters the **BASE** shorts test, to allow it
@@ -13,13 +13,14 @@ fi
 #The first step is to replace the first occurance of threshold
 #with 'first_threshold 1000', This will prevent it from
 #being removed later in the pipeline.
-sed -e '1 s/^threshold *.*/first_threshold 1000/; t' -e '1,// s//first_threshold 1000/' $1| \
+sed -e '1 s/^threshold *.*/first_threshold 1000/; t' -e '1,// s//first_threshold 1000/' $SHORTS_FNAME | \
 
 
 #The next step is to remove all of the thresholds,
 #and settling delays.
 grep -ve '^threshold' | grep -ve '^settling delay' | \
 
+sed -e 's/  */ /g' -e 's/^  *//' -e 's/  *$//' | \
 
 #The next step is to remove comments, and no access nodes.
 grep -ve '! A node is not accessible *$' | \
@@ -28,7 +29,7 @@ grep -ve '^!! Start of Section' | \
 
 
 #then the short statements are removed.
-grep -ve '^short  *"[^"]*"  *to  *"[^"]*"' | \
+grep -ve '^short "[^"]*" to "[^"]*"' | \
 
 
 #finally, the first_threshold is replaced with threshold to make the test correct.

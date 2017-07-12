@@ -54,7 +54,7 @@ if [[ $? -ne 0 ]] ; then
 
    #modify the subroutine (1) with arguments (2) direct output to (3)
    ksh $External_Path/fixture_tests/add_modified_subroutine.ksh \
-   'testplan' '^ *sub *Shorts *'  '^ *subend' "$External_Path/fixture_tests/sub_shorts_plate_modifier.ksh" 'shorts_plate"'\
+   'testplan' '^ *sub *Shorts *'  '^ *subend' "$External_Path/fixture_tests/testplan_modifiers/sub_shorts_plate_modifier.ksh" 'shorts_plate"'\
    > $POST_SHORTS_PROCESS
   
 else
@@ -74,7 +74,7 @@ if [[ $? -ne 0 ]] ; then
    
    #modify the subroutine (1) with arguments (2) direct output to (3)
    ksh $External_Path/fixture_tests/add_modified_subroutine.ksh \
-   "$POST_SHORTS_PROCESS" '^ *def *fn *Pinsfailed'  '^ *fnend' "$External_Path/fixture_tests/sub_pins_plate_modifier.ksh" 'pins_plate"'\
+   "$POST_SHORTS_PROCESS" '^ *def *fn *Pinsfailed'  '^ *fnend' "$External_Path/fixture_tests/testplan_modifiers/sub_pins_plate_modifier.ksh" 'pins_plate"'\
    > $POST_PINS_PROCESS
    
    
@@ -95,7 +95,7 @@ if [[ $? -ne 0 ]] ; then
    
    #modify the subroutine (1) with arguments (2) direct output to (3)
    ksh $External_Path/fixture_tests/add_modified_subroutine.ksh \
-   "$POST_PINS_PROCESS" '^ *sub *Characterize'  '^ *subend' "$External_Path/fixture_tests/sub_gp_relay_modifier.ksh" 'execute'\
+   "$POST_PINS_PROCESS" '^ *sub *Characterize'  '^ *subend' "$External_Path/fixture_tests/testplan_modifiers/sub_gp_relay_modifier.ksh" 'execute'\
    > $POST_GP_PROCESS
    
 else
@@ -115,7 +115,7 @@ if [[ $? -ne 0 ]] ; then
    
    #modify the subroutine (1) with arguments (2) direct output to (3)
    ksh $External_Path/fixture_tests/add_modified_subroutine.ksh \
-   "$POST_GP_PROCESS" '^ *sub *Characterize'  '^ *subend' "$External_Path/fixture_tests/sub_fix_electronics_modifier.ksh" 'execute'\
+   "$POST_GP_PROCESS" '^ *sub *Characterize'  '^ *subend' "$External_Path/fixture_tests/testplan_modifiers/sub_fix_electronics_modifier.ksh" 'execute'\
    > $POST_FIX_ELECTRONICS_PROCESS
    
 else
@@ -125,8 +125,6 @@ else
     cp $POST_GP_PROCESS $POST_FIX_ELECTRONICS_PROCESS   
 
 fi
-
-
 
 
 

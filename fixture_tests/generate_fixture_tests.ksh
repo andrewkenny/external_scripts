@@ -39,11 +39,11 @@ do
 
     
     if [[ ! -e "$PINS"_plate ]]; then
-        ksh $EXTERNAL_PATH/fixture_tests/generate_fixture_pins.ksh $PINS >  "$PINS"_plate
+        ksh $EXTERNAL_PATH/fixture_tests/fixture_test_generators/generate_fixture_pins.ksh $PINS >  "$PINS"_plate
     fi
     
     if [[ ! -e "$SHORTS"_plate ]]; then
-        ksh $EXTERNAL_PATH/fixture_tests/generate_fixture_shorts.ksh $SHORTS > "$SHORTS"_plate
+        ksh $EXTERNAL_PATH/fixture_tests/fixture_test_generators/generate_fixture_shorts.ksh $SHORTS > "$SHORTS"_plate
     fi
     
     if [[ $START -ne $STOP ]] ; then

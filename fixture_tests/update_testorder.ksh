@@ -8,16 +8,17 @@ PARSE_TEMP='debug/custom/temp/parse_file'
 NO_COMMENTS=1
 NO_FLAGS=1
 
-TEST_START=$1
-TEST_STOP=$2
-TEST_NAME=$3
-SENTINAL=$4
+EXTERNAL_PATH=$1
+TEST_START=$2
+TEST_STOP=$3
+TEST_NAME=$4
+SENTINAL=$5
 
 
 
 
 #is the test already in the testorder?
-ksh debug/custom/programs/filter_testorder.ksh "$START" "$STOP" "$NO_COMMENTS" "$NO_FLAGS" |
+ksh "$EXTERNAL_PATH/fixture_tests/filter_testorder.ksh" "$START" "$STOP" "$NO_COMMENTS" "$NO_FLAGS" |
      
     grep -E "^(test |skip )" | grep -Fq "$TEST_NAME"
     

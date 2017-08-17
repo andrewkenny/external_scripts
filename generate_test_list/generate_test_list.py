@@ -301,11 +301,5 @@ with open("testorder") as testorder, \
     
     
         test_list.write(output_line)
-            
 
 
-    
-        
-
-        
-        

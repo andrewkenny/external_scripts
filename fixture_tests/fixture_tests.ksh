@@ -9,5 +9,10 @@ ksh $EXTERNAL_PATH/fixture_tests/generate_fixture_test_macros.ksh   "$EXTERNAL_P
 
 
 #generate the actual fixture_Tests.
-ksh $EXTERNAL_PATH/fixture_tests/generate_fixture_tests.ksh   "$EXTERNAL_PATH"
+#also prints the potentially generated
+#fixture tests for the calling bt basic script to compile.
+#considered complete.
+ksh $EXTERNAL_PATH/fixture_tests/generate_fixture_tests.ksh   "$EXTERNAL_PATH" 
+    
+   
 

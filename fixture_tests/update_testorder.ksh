@@ -16,39 +16,30 @@ SENTINAL=$5
 
 
 
-
-#is the test already in the testorder?
-ksh "$EXTERNAL_PATH/fixture_tests/filter_testorder.ksh" "$START" "$STOP" "$NO_COMMENTS" "$NO_FLAGS" |
-     
-    grep -E "^(test |skip )" | grep -Fq "$TEST_NAME"
-    
-    
-#if the entry can be found,
-#cat the testorder,
-#exit the script
-if [[ $? -eq 0 ]] ; then
-
-    #remove duplicate spaces, along with preceding and proceding whitespace.
-    sed -e 's/  */ /g' -e 's/^  *//' -e 's/  *$//' 'testorder'
-    exit
-fi
-
 #the default value for $START and $STOP
 #is 0 and 0
 START=0
 STOP=0
 
+#get the first line of the test.
+IFS='' read -r FIRSTLINE < 'testorder'
 
+#print the first line.
+echo "$FIRSTLINE"
 
 cat 'testorder' |  \
 #remove duplicate spaces, along with preceding and proceding whitespace.
 sed -e 's/  */ /g' -e 's/^  *//' -e 's/  *$//'| \
+
+#remove the now incorrect header.
+grep -ve '!!!! 14 0 1' | \
 
 while IFS= read -r LINE ; do
     if [[ "$LINE" == boards* ]] ; then
         #get the new START and STOP variables.
         echo "$LINE" | sed -e 's/^boards *//' -e 's/  *to  */,/' > $PARSE_TEMP
         IFS=',' read START STOP < $PARSE_TEMP
+        rm -f "$PARSE_TEMP"
 
     fi
     

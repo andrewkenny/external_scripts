@@ -44,3 +44,5 @@ ksh "$MODIFIER_KSH" "$TEMP_FILE"
 sed 1,$(expr $SUB_SOURCE_END - 1)d 'testplan'
 
 set +o noglob
+
+rm -f $TEMP_FILE

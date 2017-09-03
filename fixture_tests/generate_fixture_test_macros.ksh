@@ -1,15 +1,18 @@
 
-External_Path=$1
+EXTERNAL_PATH=$1
 
 #remove the tempfiles (if they exist)
 #that this script uses to prevent problems
 #if they do.
 TEMP_TESTPLAN='debug/custom/temp/testplan'
+TESTPLAN_UPDATED='debug/custom/temp/testplan_changed'
 
+#create backup of the testplan.
+#outputs the name of the newly created file.
+TEMP_BACKUP=$(ksh "$EXTERNAL_PATH/general_lib/create_backup_init.ksh" "testplan")
 
-
-TESTPLAN_MOD_COUNT=0
-
+#initialise the default updated value of 0
+echo 0 > $TESTPLAN_UPDATED
 
 #first create the fixture pins and fixture shorts macro.
 
@@ -26,21 +29,20 @@ sed 's/^call Pre_Shorts/call Fixture_Electronics/' 'debug/board/Testplan_Macros/
 
 #second create a new menu.
 
-echo 'Pins'            > 'debug/board/Fixture_Check_Macros/menu'
-echo 'P'              >> 'debug/board/Fixture_Check_Macros/menu'
-echo 'Shorts'         >> 'debug/board/Fixture_Check_Macros/menu'
-echo 'S'              >> 'debug/board/Fixture_Check_Macros/menu'
-echo 'Fixture Relays' >> 'debug/board/Fixture_Check_Macros/menu'
-echo 'R'              >> 'debug/board/Fixture_Check_Macros/menu'
+echo 'Pins'                 > 'debug/board/Fixture_Check_Macros/menu'
+echo 'P'                   >> 'debug/board/Fixture_Check_Macros/menu'
+echo 'Shorts'              >> 'debug/board/Fixture_Check_Macros/menu'
+echo 'S'                   >> 'debug/board/Fixture_Check_Macros/menu'
+echo 'Fixture Relays'      >> 'debug/board/Fixture_Check_Macros/menu'
+echo 'R'                   >> 'debug/board/Fixture_Check_Macros/menu'
 echo 'Fixture Electronics' >> 'debug/board/Fixture_Check_Macros/menu'
-echo 'E'              >> 'debug/board/Fixture_Check_Macros/menu'
-echo ''               >> 'debug/board/Fixture_Check_Macros/menu'
+echo 'E'                   >> 'debug/board/Fixture_Check_Macros/menu'
+echo ''                    >> 'debug/board/Fixture_Check_Macros/menu'
 
 #init flags
 
 
-    TESTPLAN_MOD_COUNT=$(expr $TESTPLAN_MOD_COUNT + 1)
-    cp testplan "testplan..${TESTPLAN_MOD_COUNT}~"
+
     
 
 #check the testplan for the shorts_plate subroutine.
@@ -49,14 +51,15 @@ echo ''               >> 'debug/board/Fixture_Check_Macros/menu'
 grep -qE '^ *sub *Shorts_plate' 'testplan'
 if [[ $? -ne 0 ]] ; then
 
-    TESTPLAN_MOD_COUNT=$(expr $TESTPLAN_MOD_COUNT + 1)
-    cp testplan "testplan..${TESTPLAN_MOD_COUNT}~"
     
     #modify the subroutine (1) with arguments (2) direct output to (3)
-    ksh $External_Path/fixture_tests/add_modified_subroutine.ksh \
-    '^ *sub *Shorts *'  '^ *subend' "$External_Path/fixture_tests/testplan_modifiers/sub_shorts_plate_modifier.ksh" 'shorts_plate"'\
+    ksh $EXTERNAL_PATH/fixture_tests/add_modified_subroutine.ksh \
+    '^ *sub *Shorts *'  '^ *subend' "$EXTERNAL_PATH/fixture_tests/testplan_modifiers/sub_shorts_plate_modifier.ksh" 'shorts_plate"'\
     > $TEMP_TESTPLAN
     cp $TEMP_TESTPLAN testplan
+    
+    #update the flag to state the the testplan has been updated
+    echo 1 > $TESTPLAN_UPDATED
 fi
 
 
@@ -66,15 +69,15 @@ fi
 grep -qE '^ *def *fn *Pins_platefailed' 'testplan'
 if [[ $? -ne 0 ]] ; then
 
-    TESTPLAN_MOD_COUNT=$(expr $TESTPLAN_MOD_COUNT + 1)
-    cp testplan "testplan..${TESTPLAN_MOD_COUNT}~"
+
  
    #modify the subroutine (1) with arguments (2) direct output to (3)
-   ksh $External_Path/fixture_tests/add_modified_subroutine.ksh \
-   '^ *def *fn *Pinsfailed'  '^ *fnend' "$External_Path/fixture_tests/testplan_modifiers/sub_pins_plate_modifier.ksh" 'pins_plate"'\
+   ksh $EXTERNAL_PATH/fixture_tests/add_modified_subroutine.ksh \
+   '^ *def *fn *Pinsfailed'  '^ *fnend' "$EXTERNAL_PATH/fixture_tests/testplan_modifiers/sub_pins_plate_modifier.ksh" 'pins_plate"'\
     > $TEMP_TESTPLAN
     cp $TEMP_TESTPLAN testplan
-   
+    #update the flag to state the the testplan has been updated
+    echo 1 > $TESTPLAN_UPDATED
 fi
 
 
@@ -84,15 +87,17 @@ fi
 grep -qE '^ *sub *GP_Relay_Check' 'testplan'
 if [[ $? -ne 0 ]] ; then
 
-    TESTPLAN_MOD_COUNT=$(expr $TESTPLAN_MOD_COUNT + 1)
-    cp testplan "testplan..${TESTPLAN_MOD_COUNT}~"
  
    #modify the subroutine (1) with arguments (2) direct output to (3)
-   ksh $External_Path/fixture_tests/add_modified_subroutine.ksh \
-   '^ *sub *Characterize'  '^ *subend' "$External_Path/fixture_tests/testplan_modifiers/sub_gp_relay_modifier.ksh" 'execute'\
+   ksh $EXTERNAL_PATH/fixture_tests/add_modified_subroutine.ksh \
+   '^ *sub *Characterize'  '^ *subend' "$EXTERNAL_PATH/fixture_tests/testplan_modifiers/sub_gp_relay_modifier.ksh" 'execute'\
     > $TEMP_TESTPLAN
     cp $TEMP_TESTPLAN testplan
+    
+    #update the flag to state the the testplan has been updated
+    echo 1 > $TESTPLAN_UPDATED
 fi
+
 
 #check the testplan for the FIXTURE_ELECTRONICS.
 #if the FIXTURE_ELECTRONICS sub already exists,
@@ -100,14 +105,28 @@ fi
 grep -qE '^ *sub *Fixture_Electronics' 'testplan'
 if [[ $? -ne 0 ]] ; then
 
-    TESTPLAN_MOD_COUNT=$(expr $TESTPLAN_MOD_COUNT + 1)
-    cp testplan "testplan..${TESTPLAN_MOD_COUNT}~"
  
    #modify the subroutine (1) with arguments (2) direct output to (3)
-   ksh $External_Path/fixture_tests/add_modified_subroutine.ksh \
-   '^ *sub *Characterize'  '^ *subend' "$External_Path/fixture_tests/testplan_modifiers/sub_fix_electronics_modifier.ksh" 'execute'\
+   ksh $EXTERNAL_PATH/fixture_tests/add_modified_subroutine.ksh \
+   '^ *sub *Characterize'  '^ *subend' "$EXTERNAL_PATH/fixture_tests/testplan_modifiers/sub_fix_electronics_modifier.ksh" 'execute'\
     > $TEMP_TESTPLAN
     cp $TEMP_TESTPLAN testplan
+    
+    #update the flag to state the the testplan has been updated
+    echo 1 > $TESTPLAN_UPDATED
 fi
+
+#if the testorder has been changed, the file will contain a 1.
+#in this situation, a backup is created.
+TESTPLAN_UPDATED_FLAG=$(cat $TESTPLAN_UPDATED)
+if [[ $TESTPLAN_UPDATED_FLAG -eq 1 ]]; then
+
+    ksh "$EXTERNAL_PATH/general_lib/create_backup.ksh" "testplan"
+fi
+
+#cleanup temp files.
+rm -f $TEMP_TESTPLAN
+rm -f $TESTPLAN_UPDATED
+rm -f $TEMP_BACKUP
 
 

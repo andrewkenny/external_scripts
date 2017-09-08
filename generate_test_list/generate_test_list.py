@@ -235,7 +235,7 @@ with open("testorder") as testorder, \
         Version     = line_match.group("Version")
     
         if " " in Test_Name:
-            test_list_warning.write("Space character found in test name on line {}\n".format(line_no))
+            test_list_warning.write("\nSpace character found in test name on line {}\n".format(line_no))
             test_list_warning.write("Full line: \n")
             test_list_warning.write("    {0}\n\n".format(raw_line))
         
@@ -245,12 +245,12 @@ with open("testorder") as testorder, \
         #if test is found, leave loop
         if not Test_Path:
             #write warning if test path not found.
-            test_list_warnings.write("Test file or folder not found: '{}'\n".format(raw_line.strip()))
+            test_list_warnings.write("\nTest file or folder not found: '{}'\n".format(raw_line.strip()))
             continue
         
         
         if len(Test_Path) > 1:
-            test_list_warnings.write("duplicate tests matching: '{}'\n".format(raw_line.strip()))
+            test_list_warnings.write("\nduplicate tests matching: '{}'\n".format(raw_line.strip()))
             test_list_warnings.write("found in folders:\n")
             for folder in Test_Path:
                 test_list_warnings.write("    '{0}'\n".format(folder))
@@ -265,14 +265,16 @@ with open("testorder") as testorder, \
         missing_list = Test_Corpus.check_for_missing_tests()
         #print("missing list: ",missing_list)
         if missing_list:
-            pass # add error message code here.
+            print("\n{} is cannot be found for the following boards:\n".format(Test_Corpus.Test_Name))
+            for board_num in missing_list:
+                print("    {}".format(board_num))
         
         
         file_flag_list = Test_Corpus.is_test_file()
         #print("file_flag list: ",list(Test_Corpus.is_test_file()))
         #a length of more than 1 means an inconsistency.
         if len(set(file_flag_list)) > 1:
-            pass # add error message code here.
+            print("\nThe test files / folders for {} are inconsistant\n".format(Test_Corpus.Test_Name))
             
             #continue to prevent problems with later code.
             continue
@@ -282,12 +284,12 @@ with open("testorder") as testorder, \
         for inodes in file_inode_list:
             if len(inodes) > 1:
                 #add error message code here
-                pass
+                print("\nA problem has been found with the linking of test: {}".format(Test_Corpus.Test_Name))
     
-        #insert possible link warning here.
-        #also warn about missing tests.
+
         #could also warn about the lack of a
         #.o / test.o for lines where the Test_Status is "test"
+        #warn if testorder testtype differs from test contents.
         
     
         output_line = test_list_fmt.format(\

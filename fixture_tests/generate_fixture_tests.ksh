@@ -67,7 +67,7 @@ do
         #create an entry in the testorder for this new test.
         ksh $EXTERNAL_PATH/fixture_tests/update_testorder.ksh \
         "$EXTERNAL_PATH" \
-        "$START" "$STOP" 'test pins "pins_plate"' 'test pins "pins"' > \
+        "$START" "$STOP" 'test pins "pins_plate"; permanent' 'test pins "pins"' > \
         $TEMP_TESTORDER
         cp $TEMP_TESTORDER "testorder"
         
@@ -89,7 +89,7 @@ do
         #create an entry in the testorder for this new test.
         ksh $EXTERNAL_PATH/fixture_tests/update_testorder.ksh \
         "$EXTERNAL_PATH" \
-        "$START" "$STOP" 'test shorts "shorts_plate"' 'test shorts "shorts"' > \
+        "$START" "$STOP" 'test shorts "shorts_plate"; permanent' 'test shorts "shorts"' > \
         "$TEMP_TESTORDER"
         cp "$TEMP_TESTORDER" "testorder"
         #describe that the testorder has been changed.

@@ -24,11 +24,8 @@ TESTORDER_UPDATED='debug/custom/temp/testorder_changed'
 #initialise a default updated value of 0
 echo 0 > "$TESTORDER_UPDATED"
 
-#get list of all the files in the tables folder,
-ls $TABLES_FOLDER_PATH | \
-
-
-while read TABLE_NAME
+#loop through all the files in the tables folder,
+for TABLE_NAME in $(ls "$TABLES_FOLDER_PATH")
 do
 
     #add the TABLES_PATH to the start of it,
@@ -37,8 +34,7 @@ do
     #variable to be used.
     TABLE_PATH="$TABLES_FOLDER_PATH/$TABLE_NAME"
     
-    START=$(cat "$TABLE_PATH" | sort -n  | head -1)
-    STOP=$(cat "$TABLE_PATH" | sort -n | tail -1)
+    IFS=',' read START STOP < "$TABLE_PATH"
     #echo $START
     #echo $STOP
 

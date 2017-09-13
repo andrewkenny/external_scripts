@@ -1,0 +1,7 @@
+
+duplicate in wrong folder only works when duplicate is 1% - to be fixed.
+
+improve output data.
+
+check for consistancy (ie jumper in testorder, should be jumper test in file).
+

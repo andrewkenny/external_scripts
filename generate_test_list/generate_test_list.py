@@ -73,10 +73,10 @@ class TestRange():
 
         
         if self.Start == 0:
-            yield self.Full_Path(Start,compiled)
+            yield 0, self.Full_Path(Start,compiled)
         else:
             for board_num in self.range():
-                yield self.Full_Path(board_num,compiled)
+                yield board_num, self.Full_Path(board_num,compiled)
     
     
     #this function returns a list containing each board number
@@ -85,7 +85,7 @@ class TestRange():
         
         missing_list = []
             
-        for Full_Path in self.Test_Path_Iterator():
+        for board_num, Full_Path in self.Test_Path_Iterator():
         
             if not Full_Path.exists():
                 missing_list.append(board_num)
@@ -97,7 +97,7 @@ class TestRange():
     #and 0 if a test is a folder.
     def is_test_file(self):
         
-        for Full_Path in self.Test_Path_Iterator():
+        for board_num, Full_Path in self.Test_Path_Iterator():
             yield Full_Path.is_file()
     
     #returns a list of inodes for each relevent test_file.
@@ -113,7 +113,7 @@ class TestRange():
         test_inode_list = []
         for Sub_File in Sub_Files:
             file_inode_list = set()
-            for Full_Path in self.Test_Path_Iterator():
+            for board_num, Full_Path in self.Test_Path_Iterator():
                 try:
                     inode = (Full_Path / Sub_File).stat().st_ino
                 except FileNotFoundError:
@@ -265,16 +265,17 @@ with open("testorder") as testorder, \
         missing_list = Test_Corpus.check_for_missing_tests()
         #print("missing list: ",missing_list)
         if missing_list:
-            print("\n{} is cannot be found for the following boards:\n".format(Test_Corpus.Test_Name))
+            test_list_warnings.write("\n'{}' cannot be found for the following boards:\n".format(Test_Corpus.Test_Name))
             for board_num in missing_list:
-                print("    {}".format(board_num))
+                test_list_warnings.write("    {}\n".format(board_num))
         
         
         file_flag_list = Test_Corpus.is_test_file()
         #print("file_flag list: ",list(Test_Corpus.is_test_file()))
         #a length of more than 1 means an inconsistency.
         if len(set(file_flag_list)) > 1:
-            print("\nThe test files / folders for {} are inconsistant\n".format(Test_Corpus.Test_Name))
+            test_list_warnings.write("\nThe test files / folders for {} are inconsistant.\n".format(Test_Corpus.Test_Name))
+            test_list_warnings.write("Check to see that all {} tests are the same type.\n".format(Test_Corpus.Test_Name))
             
             #continue to prevent problems with later code.
             continue
@@ -284,8 +285,8 @@ with open("testorder") as testorder, \
         for inodes in file_inode_list:
             if len(inodes) > 1:
                 #add error message code here
-                print("\nA problem has been found with the linking of test: {}".format(Test_Corpus.Test_Name))
-    
+                test_list_warnings.write("\nA problem has been found with the linking of test: {}\n".format(Test_Corpus.Test_Name))
+                
 
         #could also warn about the lack of a
         #.o / test.o for lines where the Test_Status is "test"
